@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Compte commun JP &amp; Véro</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Manrope:wght@500;600;700&display=swap">
+<style>
+:root{--bg:#EEF1F6;--card:#fff;--ink:#101B33;--mute:#5F6B82;--line:#DCE1EA;--navy:#101B33;--navy2:#1B2B50;--brass:#C8A15A;--field:#F6F8FB;--pos:#2F7D6D;--neg:#B4534B}
+@media(prefers-color-scheme:dark){:root{--bg:#0B1220;--card:#131C31;--ink:#EAEEF6;--mute:#93A0BA;--line:#25314D;--field:#0F1729;--navy:#0A1226;--navy2:#16244A;--pos:#5DBBA6;--neg:#E08A82}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+.app{max-width:480px;margin:0 auto;min-height:100dvh;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:baseline;justify-content:space-between}
+h1{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:1.25rem;margin:0}
+.link{font:inherit;font-size:.8rem;font-weight:600;color:var(--mute);background:none;border:0;padding:6px 0;cursor:pointer;min-height:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+label{display:block;font-size:.72rem;font-weight:700;color:var(--mute);margin-bottom:3px}
+.f{position:relative}
+input{width:100%;font:inherit;font-size:1rem;font-weight:700;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:10px;padding:0 26px 0 11px;height:42px}
+input:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px rgba(200,161,90,.28)}
+.u{position:absolute;right:10px;bottom:11px;color:var(--mute);font-weight:700;font-size:.9rem;pointer-events:none}
+.hero{background:linear-gradient(160deg,var(--navy2),var(--navy));color:#fff;border-radius:16px;padding:14px;border:1px solid rgba(200,161,90,.35)}
+.hero small{color:#B9C3DA;font-size:.78rem}
+.big{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:2rem;line-height:1.15;font-variant-numeric:tabular-nums}
+.people{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.p{background:rgba(255,255,255,.08);border-radius:12px;padding:10px 12px}
+.p .n{font-size:.78rem;color:#B9C3DA}
+.p .v{font-family:Fraunces,Georgia,serif;font-size:1.45rem;font-weight:600;font-variant-numeric:tabular-nums}
+.p .t{font-size:.75rem;font-weight:700;color:var(--brass)}
+.p.recv .t{color:#7FD3BE}
+.bar{display:flex;height:8px;border-radius:9px;overflow:hidden;background:rgba(255,255,255,.12);margin-top:12px}
+.bar i{display:block;height:100%;transition:width .3s}
+.bar .a{background:var(--brass)}.bar .b{background:#8FA6D6}
+.leg{display:flex;justify-content:space-between;font-size:.75rem;color:#B9C3DA;margin-top:5px}
+.check{font-size:.78rem;font-weight:600;color:var(--pos);text-align:center}
+.check.warn{color:var(--neg)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.btn{font:inherit;font-weight:700;font-size:.88rem;border-radius:12px;height:46px;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--ink)}
+.btn.main{background:var(--navy);color:#fff;border-color:var(--brass)}
+.btn:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><h1>Compte commun</h1><button class="link" id="reset" type="button">Vider</button></div>
+
+  <div class="card">
+    <div class="g">
+      <div class="f"><label for="sA">Salaire JP</label><input id="sA" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="sB">Salaire Véro</label><input id="sB" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="aA">Avancé par JP</label><input id="aA" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="aB">Avancé par Véro</label><input id="aB" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="solde">Solde actuel</label><input id="solde" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="cible">Solde cible</label><input id="cible" inputmode="decimal" value="6000"><span class="u">€</span></div>
+    </div>
+  </div>
+
+  <div class="hero" aria-live="polite">
+    <small>Total à remettre dans le compte commun</small>
+    <div class="big" id="total">–</div>
+    <div class="people">
+      <div class="p" id="pA"><div class="n">JP</div><div class="v" id="vA">–</div><div class="t" id="tA">&nbsp;</div></div>
+      <div class="p" id="pB"><div class="n">Véro</div><div class="v" id="vB">–</div><div class="t" id="tB">&nbsp;</div></div>
+    </div>
+    <div class="bar" aria-hidden="true"><i class="a" id="barA" style="width:0"></i><i class="b" id="barB" style="width:0"></i></div>
+    <div class="leg"><span id="gA">JP</span><span id="gB">Véro</span></div>
+  </div>
+  <div class="check" id="check">&nbsp;</div>
+
+  <div class="acts">
+    <button class="btn main" id="copy" type="button">Copier le résumé</button>
+    <button class="btn" id="export" type="button">Générer le récapitulatif</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ids=["sA","sB","aA","aB","solde","cible"],el={};
+  ids.forEach(function(i){el[i]=document.getElementById(i)});
+  var $=function(i){return document.getElementById(i)};
+  var eur=new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"});
+  var pct=new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1});
+  function num(s){var n=parseFloat(String(s).replace(/\s/g,"").replace(",","."));return isFinite(n)?n:0}
+  var R=null;
+
+  function load(){
+    var got=false;
+    try{var h=location.hash.replace(/^#/,"");if(h){var p=new URLSearchParams(h);ids.forEach(function(i){if(p.has(i)){el[i].value=p.get(i);got=true}})}}catch(e){}
+    if(got)return;
+    try{var s=localStorage.getItem("cc-v2");if(s){var o=JSON.parse(s);ids.forEach(function(i){if(o[i]!==undefined)el[i].value=o[i]})}}catch(e){}
+  }
+  function save(){
+    var o={};ids.forEach(function(i){o[i]=el[i].value});
+    try{localStorage.setItem("cc-v2",JSON.stringify(o))}catch(e){}
+    try{history.replaceState(null,"","#"+new URLSearchParams(o).toString())}catch(e){}
+  }
+
+  function calc(){
+    var sA=Math.max(0,num(el.sA.value)),sB=Math.max(0,num(el.sB.value));
+    var solde=num(el.solde.value),cible=num(el.cible.value),aA=num(el.aA.value),aB=num(el.aB.value);
+    var S=sA+sB;
+    if(S<=0){
+      R=null;
+      ["total","vA","vB"].forEach(function(i){$(i).textContent="–"});
+      $("tA").innerHTML="&nbsp;";$("tB").innerHTML="&nbsp;";
+      $("barA").style.width="0";$("barB").style.width="0";
+      $("gA").textContent="JP";$("gB").textContent="Véro";
+      $("check").className="check";$("check").innerHTML="Saisissez les salaires pour calculer.";
+      return;
+    }
+    var av=aA+aB,total=cible-solde+av,rA=sA/S,rB=sB/S;
+    var vA=total*rA-aA,vB=total*rB-aB;
+    R={solde:solde,cible:cible,av:av,total:total,rA:rA,rB:rB,vA:vA,vB:vB};
+    $("total").textContent=eur.format(total);
+    [["vA","tA","pA",vA],["vB","tB","pB",vB]].forEach(function(x){
+      $(x[0]).textContent=eur.format(Math.abs(x[3]));
+      $(x[1]).textContent=x[3]>=0?"à virer":"à recevoir";
+      $(x[2]).className="p"+(x[3]<0?" recv":"");
+    });
+    $("barA").style.width=(rA*100)+"%";$("barB").style.width=(rB*100)+"%";
+    $("gA").textContent="JP "+pct.format(rA*100)+" %";$("gB").textContent="Véro "+pct.format(rB*100)+" %";
+    var ok=Math.abs(solde+vA+vB-cible)<0.005;
+    $("check").className="check"+(ok?"":" warn");
+    $("check").textContent=ok?"Contrôle OK : "+eur.format(cible)+" en début de mois":"Le contrôle ne tombe pas juste";
+  }
+  function update(){calc();save()}
+  ids.forEach(function(i){el[i].addEventListener("input",update)});
+
+  $("reset").addEventListener("click",function(){
+    ids.forEach(function(i){if(i!=="cible")el[i].value=""});
+    update();el.sA.focus();
+  });
+
+  $("copy").addEventListener("click",function(){
+    if(!R)return;
+    var t="Compte commun – fin de mois\nJP : "+(R.vA>=0?"virer ":"recevoir ")+eur.format(Math.abs(R.vA))+"\nVéro : "+(R.vB>=0?"virer ":"recevoir ")+eur.format(Math.abs(R.vB))+"\nSolde de départ : "+eur.format(R.cible);
+    var b=$("copy");
+    function done(){b.textContent="Copié";setTimeout(function(){b.textContent="Copier le résumé"},1500)}
+    function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");done()}catch(e){}document.body.removeChild(a)}
+    try{navigator.clipboard.writeText(t).then(done,fb)}catch(e){fb()}
+  });
+
+  // Récapitulatif : page HTML statique (sans JavaScript), lisible dans le viewer de Google Drive
+  $("export").addEventListener("click",function(){
+    if(!R){alert("Saisissez au moins un salaire.");return}
+    var d=new Date().toLocaleDateString("fr-FR");
+    function card(n,v){return '<table class="c"><tr><td><b>'+n+'</b><br><span class="s">'+(v>=0?"À virer":"À recevoir")+'</span></td><td class="r a">'+eur.format(Math.abs(v))+'</td></tr></table>'}
+    var h='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>Compte commun – '+d+'</title><style>'+
+    'body{margin:0;background:#EEF1F6;color:#101B33;font-family:system-ui,-apple-system,Segoe UI,sans-serif}'+
+    '.w{max-width:480px;margin:0 auto;padding:16px}'+
+    '.h{background:#101B33;color:#fff;border-radius:16px;padding:18px}.h small{color:#B9C3DA}.h div{font-size:2.2rem;font-weight:700}'+
+    'table{width:100%;border-collapse:collapse}.c{background:#fff;border:1px solid #DCE1EA;border-radius:16px;margin-top:12px}'+
+    '.c td{padding:14px}.a{font-size:1.5rem;font-weight:700}.r{text-align:right}.s{color:#9A7425;font-weight:700;font-size:.85rem}'+
+    '.t{background:#fff;border:1px solid #DCE1EA;border-radius:16px;margin-top:12px}.t td{padding:10px 14px;border-bottom:1px solid #DCE1EA}.t tr:last-child td{border:0}.t td+td{text-align:right;font-weight:700}'+
+    '.f{text-align:center;color:#5F6B82;font-size:.85rem;margin-top:14px}</style></head><body><div class="w">'+
+    '<div class="h"><small>Total à remettre dans le compte commun</small><div>'+eur.format(R.total)+'</div></div>'+
+    card("JP",R.vA)+card("Véro",R.vB)+
+    '<table class="t"><tr><td>Solde actuel</td><td>'+eur.format(R.solde)+'</td></tr>'+
+    '<tr><td>Solde cible</td><td>'+eur.format(R.cible)+'</td></tr>'+
+    '<tr><td>Avances remboursées</td><td>'+eur.format(R.av)+'</td></tr>'+
+    '<tr><td>Part JP</td><td>'+pct.format(R.rA*100)+' %</td></tr>'+
+    '<tr><td>Part Véro</td><td>'+pct.format(R.rB*100)+' %</td></tr></table>'+
+    '<div class="f">Généré le '+d+'</div></div></body></html>';
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([h],{type:"text/html;charset=utf-8"}));
+    a.download="compte-commun-recap-"+new Date().toISOString().slice(0,10)+".html";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+  });
+
+  load();calc();
+})();
+</script>
+</body>
+</html>
