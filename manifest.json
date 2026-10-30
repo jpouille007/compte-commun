@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "Compte commun JP & Véro",
+  "short_name": "Compte commun",
+  "description": "Calcul des contributions au compte commun et historique mensuel sur 12 mois.",
+  "lang": "fr-FR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#101B33",
+  "background_color": "#EEF1F6",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

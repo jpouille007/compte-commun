@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101B33">
+<meta name="description" content="Calcul et suivi du compte commun, avec historique mensuel.">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icons/icon-192.png" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<title>Compte commun JP &amp; Véro</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Manrope:wght@500;600;700&display=swap">
+<style>
+:root{--bg:#EEF1F6;--card:#fff;--ink:#101B33;--mute:#5F6B82;--line:#DCE1EA;--navy:#101B33;--navy2:#1B2B50;--brass:#C8A15A;--field:#F6F8FB;--pos:#2F7D6D;--neg:#B4534B}
+@media(prefers-color-scheme:dark){:root{--bg:#0B1220;--card:#131C31;--ink:#EAEEF6;--mute:#93A0BA;--line:#25314D;--field:#0F1729;--navy:#0A1226;--navy2:#16244A;--pos:#5DBBA6;--neg:#E08A82}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+.app{max-width:480px;margin:0 auto;min-height:100dvh;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.top-actions{display:flex;align-items:center;gap:12px}
+.mode{font:inherit;font-size:.78rem;font-weight:700;color:var(--navy);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer}
+@media(prefers-color-scheme:dark){.mode{color:var(--ink)}}
+h1{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:1.25rem;margin:0}
+.link{font:inherit;font-size:.8rem;font-weight:600;color:var(--mute);background:none;border:0;padding:6px 0;cursor:pointer;min-height:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+label{display:block;font-size:.72rem;font-weight:700;color:var(--mute);margin-bottom:3px}
+.f{position:relative}
+input{width:100%;font:inherit;font-size:1rem;font-weight:700;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:10px;padding:0 26px 0 11px;height:42px}
+input:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px rgba(200,161,90,.28)}
+.u{position:absolute;right:10px;bottom:11px;color:var(--mute);font-weight:700;font-size:.9rem;pointer-events:none}
+.hero{background:linear-gradient(160deg,var(--navy2),var(--navy));color:#fff;border-radius:16px;padding:14px;border:1px solid rgba(200,161,90,.35)}
+.hero small{color:#B9C3DA;font-size:.78rem}
+.hero .total-label{display:block;color:#B9C3DA;font-size:.78rem;margin-bottom:2px}
+.progress-wrap{margin-top:13px}
+.progress-meta{display:flex;justify-content:space-between;gap:8px;color:#B9C3DA;font-size:.72rem;margin-bottom:5px}
+.progress{height:9px;background:rgba(255,255,255,.14);border-radius:10px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--brass);border-radius:10px;transition:width .3s}
+.progress-note{font-size:.72rem;color:#B9C3DA;margin-top:5px}
+.app.mode-result .inputs-card{display:none}
+.app.mode-result .hero{margin-top:2px}
+.app.mode-result .acts{margin-top:0}
+.app.mode-result .result-note{display:block}
+.result-note{display:none;font-size:.75rem;color:#B9C3DA;margin-top:7px}
+.big{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:2rem;line-height:1.15;font-variant-numeric:tabular-nums}
+.people{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.p{background:rgba(255,255,255,.08);border-radius:12px;padding:10px 12px}
+.p .n{font-size:.78rem;color:#B9C3DA}
+.p .v{font-family:Fraunces,Georgia,serif;font-size:1.45rem;font-weight:600;font-variant-numeric:tabular-nums}
+.p .t{font-size:.75rem;font-weight:700;color:var(--brass)}
+.p.recv .t{color:#7FD3BE}
+.bar{display:flex;height:8px;border-radius:9px;overflow:hidden;background:rgba(255,255,255,.12);margin-top:12px}
+.bar i{display:block;height:100%;transition:width .3s}
+.bar .a{background:var(--brass)}.bar .b{background:#8FA6D6}
+.leg{display:flex;justify-content:space-between;font-size:.75rem;color:#B9C3DA;margin-top:5px}
+.check{font-size:.78rem;font-weight:600;color:var(--pos);text-align:center}
+.check.warn{color:var(--neg)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.btn{font:inherit;font-weight:700;font-size:.88rem;border-radius:12px;height:46px;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--ink)}
+.btn.main{background:var(--navy);color:#fff;border-color:var(--brass)}
+.btn:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+
+.history-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.history-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.history-title{font-weight:800;font-size:.92rem}
+.history-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.history-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.history-item{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--field)}
+.history-item-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:800}
+.history-item-detail{font-size:.75rem;color:var(--mute);margin-top:4px;line-height:1.5}
+.history-item button{margin-top:8px}
+.btn.small{height:36px;padding:0 10px;font-size:.78rem}
+.history-empty{font-size:.8rem;color:var(--mute);padding:10px 0}
+
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="top"><h1>Compte commun</h1><div class="top-actions"><button class="mode" id="mode" type="button" aria-pressed="false">Fin de mois</button><button class="link" id="reset" type="button">Vider</button></div></div>
+
+  <div class="card inputs-card">
+    <div class="g">
+      <div class="f"><label for="sA">Salaire JP</label><input id="sA" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="sB">Salaire Véro</label><input id="sB" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="aA">Avancé par JP</label><input id="aA" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="aB">Avancé par Véro</label><input id="aB" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="solde">Solde actuel</label><input id="solde" inputmode="decimal" placeholder="0"><span class="u">€</span></div>
+      <div class="f"><label for="cible">Solde cible</label><input id="cible" inputmode="decimal" value="6000"><span class="u">€</span></div>
+    </div>
+  </div>
+
+  <div class="hero" aria-live="polite">
+    <small class="total-label" id="totalLabel">Total à remettre dans le compte commun</small>
+    <div class="big" id="total">–</div>
+    <div class="progress-wrap" aria-label="Progression du solde vers l’objectif">
+      <div class="progress-meta"><span>Solde actuel</span><span id="progressValues">– / –</span></div>
+      <div class="progress" role="progressbar" aria-label="Solde actuel par rapport au solde cible" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress"><i id="progressFill"></i></div>
+      <div class="progress-note" id="progressNote">Renseignez le solde actuel et le solde cible.</div>
+    </div>
+    <div class="people">
+      <div class="p" id="pA"><div class="n">JP</div><div class="v" id="vA">–</div><div class="t" id="tA">&nbsp;</div></div>
+      <div class="p" id="pB"><div class="n">Véro</div><div class="v" id="vB">–</div><div class="t" id="tB">&nbsp;</div></div>
+    </div>
+    <div class="bar" aria-hidden="true"><i class="a" id="barA" style="width:0"></i><i class="b" id="barB" style="width:0"></i></div>
+    <div class="leg"><span id="gA">JP</span><span id="gB">Véro</span></div>
+    <div class="result-note" id="resultNote">Vue simplifiée : les données de calcul sont masquées.</div>
+  </div>
+  <div class="check" id="check">&nbsp;</div>
+
+
+  <section class="history-card" aria-labelledby="historyTitle">
+    <div class="history-head"><div><div class="history-title" id="historyTitle">Historique · 12 mois glissants</div><div class="history-item-detail">Enregistre les calculs mensuels sur cet appareil.</div></div></div>
+    <div class="history-actions">
+      <button class="btn main small" id="saveMonth" type="button">Enregistrer ce mois</button>
+      <button class="btn small" id="backupHistory" type="button">Exporter sauvegarde</button>
+      <button class="btn small" id="restoreHistory" type="button">Importer sauvegarde</button>
+      <input id="historyFile" type="file" accept="application/json,.json" hidden>
+    </div>
+    <div class="history-list" id="historyList"><div class="history-empty">Aucun mois enregistré pour le moment.</div></div>
+  </section>
+
+  <div class="acts">
+    <button class="btn main" id="copy" type="button">Copier le résumé</button>
+    <button class="btn" id="export" type="button">Générer le récapitulatif</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ids=["sA","sB","aA","aB","solde","cible"],el={};
+  ids.forEach(function(i){el[i]=document.getElementById(i)});
+  var $=function(i){return document.getElementById(i)};
+  var eur=new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"});
+  var pct=new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1});
+  function num(s){var n=parseFloat(String(s).replace(/\s/g,"").replace(",","."));return isFinite(n)?n:0}
+  var R=null;
+  var resultMode=false;
+  var HISTORY_KEY="cc-history-v1";
+  var historyData={};
+  var viewingMonth=null;
+
+  function monthKey(date){var d=date||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+  function monthLabel(key){var parts=key.split("-");var d=new Date(Number(parts[0]),Number(parts[1])-1,1);return d.toLocaleDateString("fr-FR",{month:"long",year:"numeric"})}
+  function loadHistory(){try{var raw=localStorage.getItem(HISTORY_KEY);historyData=raw?JSON.parse(raw):{};if(!historyData||typeof historyData!=="object")historyData={}}catch(e){historyData={}};pruneHistory();renderHistory()}
+  function pruneHistory(){var now=new Date(),keep={};for(var i=0;i<12;i++){var d=new Date(now.getFullYear(),now.getMonth()-i,1),k=monthKey(d);if(historyData[k])keep[k]=historyData[k]}historyData=keep;persistHistory()}
+  function persistHistory(){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(historyData))}catch(e){alert("Impossible d'enregistrer l'historique sur cet appareil. Pensez à exporter une sauvegarde.")}}
+  function snapshot(){var o={};ids.forEach(function(id){o[id]=el[id].value});return {month:monthKey(),savedAt:new Date().toISOString(),values:o,result:R?{total:R.total,vA:R.vA,vB:R.vB,solde:R.solde,cible:R.cible,av:R.av,rA:R.rA,rB:R.rB}:null}}
+  function saveMonth(){if(!R){alert("Saisissez les deux salaires pour enregistrer le calcul.");return}var k=monthKey(),old=historyData[k];if(old&&!confirm("Un calcul existe déjà pour "+monthLabel(k)+". Le remplacer ?"))return;historyData[k]=snapshot();persistHistory();renderHistory();alert("Calcul de "+monthLabel(k)+" enregistré.")}
+  function renderHistory(){var list=$("historyList"),keys=Object.keys(historyData).sort().reverse();list.innerHTML="";if(!keys.length){list.innerHTML='<div class="history-empty">Aucun mois enregistré pour le moment.</div>';return}keys.forEach(function(k){var rec=historyData[k],r=rec.result,div=document.createElement("div");div.className="history-item";var top=document.createElement("div");top.className="history-item-top";var title=document.createElement("span");title.textContent=monthLabel(k);var total=document.createElement("span");total.textContent=r?eur.format(Math.abs(r.total)):"Calcul indisponible";top.appendChild(title);top.appendChild(total);div.appendChild(top);var detail=document.createElement("div");detail.className="history-item-detail";detail.textContent=r?"JP "+(r.vA>=0?"à verser ":"à récupérer ")+eur.format(Math.abs(r.vA))+" · Véro "+(r.vB>=0?"à verser ":"à récupérer ")+eur.format(Math.abs(r.vB))+" · Solde "+eur.format(r.solde)+" / "+eur.format(r.cible):"Données enregistrées sans résultat calculé.";div.appendChild(detail);var btn=document.createElement("button");btn.type="button";btn.className="btn small";btn.textContent="Reprendre ce mois";btn.addEventListener("click",function(){if(!confirm("Recharger les données de "+monthLabel(k)+" dans le calcul courant ? Les saisies actuelles seront remplacées."))return;ids.forEach(function(id){el[id].value=rec.values&&rec.values[id]!==undefined?rec.values[id]:""});viewingMonth=k;update();resultMode=false;$('app').classList.remove("mode-result");$('mode').textContent="Fin de mois";$('mode').setAttribute("aria-pressed","false");window.scrollTo({top:0,behavior:"smooth"})});div.appendChild(btn);list.appendChild(div)})}
+  function exportHistory(){var blob=new Blob([JSON.stringify({format:"compte-commun-history-v1",exportedAt:new Date().toISOString(),history:historyData},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="compte-commun-historique-"+monthKey()+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000)}
+  function importHistory(file){if(!file)return;var reader=new FileReader();reader.onload=function(){try{var obj=JSON.parse(reader.result),incoming=obj.history||obj;if(!incoming||typeof incoming!=="object")throw new Error();if(!confirm("Importer l'historique ? Les mois portant le même nom seront remplacés."))return;Object.keys(incoming).forEach(function(k){if(/^\d{4}-\d{2}$/.test(k)&&incoming[k]&&incoming[k].values)historyData[k]=incoming[k]});pruneHistory();renderHistory();alert("Historique importé.")}catch(e){alert("Fichier de sauvegarde invalide.")}};reader.readAsText(file)}
+
+  function load(){
+    var got=false;
+    try{var h=location.hash.replace(/^#/,"");if(h){var p=new URLSearchParams(h);ids.forEach(function(i){if(p.has(i)){el[i].value=p.get(i);got=true}})}}catch(e){}
+    if(got)return;
+    try{var s=localStorage.getItem("cc-v2");if(s){var o=JSON.parse(s);ids.forEach(function(i){if(o[i]!==undefined)el[i].value=o[i]})}}catch(e){}
+  }
+  function save(){
+    var o={};ids.forEach(function(i){o[i]=el[i].value});
+    try{localStorage.setItem("cc-v2",JSON.stringify(o))}catch(e){}
+  }
+
+  function progress(solde,cible){
+    var valid=el.solde.value.trim()!=="" && el.cible.value.trim()!=="" && cible>0;
+    var ratio=valid?Math.max(0,Math.min(100,solde/cible*100)):0;
+    $("progressFill").style.width=ratio+"%";
+    $("progress").setAttribute("aria-valuenow",String(Math.round(ratio)));
+    $("progressValues").textContent=valid?eur.format(solde)+" / "+eur.format(cible):"– / –";
+    $("progressNote").textContent=valid?(solde>=cible?"Objectif atteint : le compte est au niveau cible.":eur.format(cible-solde)+" à ajouter au compte pour atteindre l’objectif."):"Renseignez le solde actuel et le solde cible.";
+  }
+
+  function calc(){
+    var sA=Math.max(0,num(el.sA.value)),sB=Math.max(0,num(el.sB.value));
+    var solde=num(el.solde.value),cible=num(el.cible.value),aA=num(el.aA.value),aB=num(el.aB.value);
+    var S=sA+sB;
+    progress(solde,cible);
+    if(S<=0){
+      R=null;
+      ["total","vA","vB"].forEach(function(i){$(i).textContent="–"});
+      $("tA").innerHTML="&nbsp;";$("tB").innerHTML="&nbsp;";
+      $("barA").style.width="0";$("barB").style.width="0";
+      $("gA").textContent="JP";$("gB").textContent="Véro";
+      $("check").className="check";$("check").innerHTML="Saisissez les salaires pour calculer.";
+      return;
+    }
+    var av=aA+aB,total=cible-solde+av,rA=sA/S,rB=sB/S;
+    var vA=total*rA-aA,vB=total*rB-aB;
+    R={solde:solde,cible:cible,av:av,total:total,rA:rA,rB:rB,vA:vA,vB:vB};
+    $("totalLabel").textContent=total>=0?"Total à remettre dans le compte commun":"Excédent après prise en compte des avances";
+    $("total").textContent=eur.format(Math.abs(total));
+    [["vA","tA","pA",vA],["vB","tB","pB",vB]].forEach(function(x){
+      $(x[0]).textContent=eur.format(Math.abs(x[3]));
+      $(x[1]).textContent=x[3]>=0?"à virer":"à recevoir";
+      $(x[2]).className="p"+(x[3]<0?" recv":"");
+    });
+    $("barA").style.width=(rA*100)+"%";$("barB").style.width=(rB*100)+"%";
+    $("gA").textContent="JP "+pct.format(rA*100)+" %";$("gB").textContent="Véro "+pct.format(rB*100)+" %";
+    var ok=Math.abs(solde+vA+vB-cible)<0.005;
+    $("check").className="check"+(ok?"":" warn");
+    $("check").textContent=ok?"Contrôle OK : le solde après versements sera de "+eur.format(cible):"Le contrôle ne tombe pas juste";
+  }
+  function update(){calc();save()}
+  ids.forEach(function(i){el[i].addEventListener("input",update)});
+
+  $("reset").addEventListener("click",function(){
+    if(!confirm("Vider les salaires, avances et soldes saisis ? Le solde cible sera conservé."))return;
+    resultMode=false;$("app").classList.remove("mode-result");$("mode").textContent="Fin de mois";$("mode").setAttribute("aria-pressed","false");
+    ids.forEach(function(i){if(i!=="cible")el[i].value=""});
+    update();el.sA.focus();
+  });
+
+  $("copy").addEventListener("click",function(){
+    if(!R)return;
+    var t="Compte commun – fin de mois\nJP : "+(R.vA>=0?"à virer ":"à recevoir ")+eur.format(Math.abs(R.vA))+"\nVéro : "+(R.vB>=0?"à virer ":"à recevoir ")+eur.format(Math.abs(R.vB))+"\nSolde actuel : "+eur.format(R.solde)+"\nSolde cible : "+eur.format(R.cible);
+    var b=$("copy");
+    function done(){b.textContent="Copié";setTimeout(function(){b.textContent="Copier le résumé"},1500)}
+    function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");done()}catch(e){}document.body.removeChild(a)}
+    try{navigator.clipboard.writeText(t).then(done,fb)}catch(e){fb()}
+  });
+
+  // Récapitulatif : page HTML statique (sans JavaScript), lisible dans le viewer de Google Drive
+  $("export").addEventListener("click",function(){
+    if(!R){alert("Saisissez au moins un salaire.");return}
+    var d=new Date().toLocaleDateString("fr-FR");
+    function card(n,v){return '<table class="c"><tr><td><b>'+n+'</b><br><span class="s">'+(v>=0?"À virer":"À recevoir")+'</span></td><td class="r a">'+eur.format(Math.abs(v))+'</td></tr></table>'}
+    var h='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>Compte commun – '+d+'</title><style>'+
+    'body{margin:0;background:#EEF1F6;color:#101B33;font-family:system-ui,-apple-system,Segoe UI,sans-serif}'+
+    '.w{max-width:480px;margin:0 auto;padding:16px}'+
+    '.h{background:#101B33;color:#fff;border-radius:16px;padding:18px}.h small{color:#B9C3DA}.h div{font-size:2.2rem;font-weight:700}'+
+    'table{width:100%;border-collapse:collapse}.c{background:#fff;border:1px solid #DCE1EA;border-radius:16px;margin-top:12px}'+
+    '.c td{padding:14px}.a{font-size:1.5rem;font-weight:700}.r{text-align:right}.s{color:#9A7425;font-weight:700;font-size:.85rem}'+
+    '.t{background:#fff;border:1px solid #DCE1EA;border-radius:16px;margin-top:12px}.t td{padding:10px 14px;border-bottom:1px solid #DCE1EA}.t tr:last-child td{border:0}.t td+td{text-align:right;font-weight:700}'+
+    '.f{text-align:center;color:#5F6B82;font-size:.85rem;margin-top:14px}</style></head><body><div class="w">'+
+    '<div class="h"><small>'+(R.total>=0?"Total à remettre dans le compte commun":"Excédent après avances")+'</small><div>'+eur.format(Math.abs(R.total))+'</div></div>'+
+    card("JP",R.vA)+card("Véro",R.vB)+
+    '<table class="t"><tr><td>Solde actuel</td><td>'+eur.format(R.solde)+'</td></tr>'+
+    '<tr><td>Solde cible</td><td>'+eur.format(R.cible)+'</td></tr>'+
+    '<tr><td>Avances remboursées</td><td>'+eur.format(R.av)+'</td></tr>'+
+    '<tr><td>Part JP</td><td>'+pct.format(R.rA*100)+' %</td></tr>'+
+    '<tr><td>Part Véro</td><td>'+pct.format(R.rB*100)+' %</td></tr></table>'+
+    '<div class="f">Généré le '+d+'</div></div></body></html>';
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([h],{type:"text/html;charset=utf-8"}));
+    a.download="compte-commun-recap-"+new Date().toISOString().slice(0,10)+".html";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+  });
+
+  $("mode").addEventListener("click",function(){
+    resultMode=!resultMode;
+    $("app").classList.toggle("mode-result",resultMode);
+    $("mode").textContent=resultMode?"Modifier le calcul":"Fin de mois";
+    $("mode").setAttribute("aria-pressed",String(resultMode));
+    if(resultMode)window.scrollTo({top:0,behavior:"smooth"});
+  });
+
+  $("saveMonth").addEventListener("click",saveMonth);
+  $("backupHistory").addEventListener("click",exportHistory);
+  $("restoreHistory").addEventListener("click",function(){$("historyFile").click()});
+  $("historyFile").addEventListener("change",function(){importHistory(this.files&&this.files[0]);this.value=""});
+  loadHistory();load();calc();
+
+  // Enregistrement du service worker PWA (HTTPS requis, GitHub Pages convient).
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",function(){
+      navigator.serviceWorker.register("./service-worker.js").catch(function(err){console.warn("Service worker non enregistré",err)});
+    });
+  }
+})();
+</script>
+</body>
+</html>
